@@ -27,35 +27,28 @@ class kafka::broker::service (
 ) {
   assert_private()
 
-  if $manage_service {
-    $env_defaults = {
-      'KAFKA_HEAP_OPTS'  => $heap_opts,
-      'KAFKA_JMX_OPTS'   => $jmx_opts,
-      'KAFKA_LOG4J_OPTS' => $log4j_opts,
-      'KAFKA_OPTS'       => $opts,
-      'LOG_DIR'          => $log_dir,
-    }
-    $environment = deep_merge($env_defaults, $env)
-
-    include systemd
-
-    if ($service_restart) {
-      $config_notify = Service[$service_name]
-    } else {
-      $config_notify = undef
-    }
-
-    file { "/etc/systemd/system/${service_name}.service":
-      ensure  => file,
-      mode    => '0644',
-      content => template('kafka/unit.erb'),
-      notify  => $config_notify,
-    }
-    service { $service_name:
-      ensure     => $service_ensure,
-      enable     => true,
-      hasstatus  => true,
-      hasrestart => true,
+  if !defined(Class['kafka::service']) {
+    class { 'kafka::service':
+      manage_service   => $manage_service,
+      service_ensure   => $service_ensure,
+      service_name     => $service_name,
+      service_restart  => $service_restart,
+      user_name        => $user_name,
+      group_name       => $group_name,
+      config_dir       => $config_dir,
+      log_dir          => $log_dir,
+      bin_dir          => $bin_dir,
+      service_requires => $service_requires,
+      limit_nofile     => $limit_nofile,
+      limit_core       => $limit_core,
+      timeout_stop     => $timeout_stop,
+      exec_stop        => $exec_stop,
+      daemon_start     => $daemon_start,
+      env              => $env,
+      heap_opts        => $heap_opts,
+      jmx_opts         => $jmx_opts,
+      log4j_opts       => $log4j_opts,
+      opts             => $opts,
     }
   }
 }
