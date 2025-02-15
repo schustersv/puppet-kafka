@@ -29,7 +29,7 @@ class kafka::mirror::config (
     fail('[Producer] You need to specify a value for bootstrap.servers')
   }
 
-  class { 'kafka::consumer::config':
+  $_config = {
     manage_service  => $manage_service,
     service_name    => $service_name,
     service_restart => $service_restart,
@@ -38,19 +38,16 @@ class kafka::mirror::config (
     user_name       => $user_name,
     group_name      => $group_name,
     config_mode     => $config_mode,
-    manage_log4j    => $manage_log4j,
-    log_file_size   => $log_file_size,
-    log_file_count  => $log_file_count,
   }
 
-  class { 'kafka::producer::config':
-    manage_service  => $manage_service,
-    service_name    => $service_name,
-    service_restart => $service_restart,
-    config          => $producer_config,
-    config_dir      => $config_dir,
-    user_name       => $user_name,
-    group_name      => $group_name,
-    config_mode     => $config_mode,
+  kafka::mirror::config_file { 'consumer':
+    *              => $_config,
+    manage_log4j   => $manage_log4j,
+    log_file_size  => $log_file_size,
+    log_file_count => $log_file_count,
+  }
+  kafka::mirror::config_file { 'producer':
+    *            => $_config,
+    manage_log4j => false,
   }
 }
