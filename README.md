@@ -30,7 +30,7 @@ The Kafka module for managing the installation and configuration of [Apache Kafk
 ## Module Description
 
 The Kafka module for managing the installation and configuration of Apache Kafka:
-it's brokers, producers and consumers.
+its brokers, topics and topic mirroring
 
 ## Setup
 
